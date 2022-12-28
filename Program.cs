@@ -42,5 +42,45 @@ namespace CarScraper
         }
         private static void BrowserLoadingStateChanged(object sender, LoadingStateChangedEventArgs e)
         {
+            if (!e.IsLoading)
+            {
+                Console.WriteLine("\n\n\n\n\n\nLOADED...................................\n\n\n\n\n\n");
+                Console.WriteLine("Currently at step " + _currentStep);
+                Console.WriteLine("Currently at address " + _browser.Address);
+
+                switch (_currentStep)
+                {
+                    case Steps.Login:
+                        break;
+                    case Steps.EnterFirstSearch:
+                        break;
+                    case Steps.ScrapeFirstPageForModelS:
+                        Console.WriteLine("SCRAPING FIRST PAGE FOR MODEL S!");
+                        break;
+                    case Steps.NextPage:
+                        Console.WriteLine("SWITCHING FILTER!");
+                        break;
+                    case Steps.ScrapeLastPageForModelS:
+                        Console.WriteLine("SCRAPING LAST PAGE FOR MODEL S!");
+                        break;
+                    case Steps.SelectModelX:
+                        Console.WriteLine("SWITCHING FILTER!");
+                        break;
+                    case Steps.ScrapeFirstPageForModelX:
+                        Console.WriteLine("SCRAPING FIRST PAGE FOR MODEL X!");
+                        break;
+                    case Steps.Finish:
+                        Console.WriteLine("!!!WORK COMPLETE!!!");
+                        break;
+                    case Steps.Fail:
+                        Console.WriteLine("FAILED");
+                        break;
+
+                }
+            }
+            else
+            {
+                Console.WriteLine("\n\n\n\n\n\nLOADING.................................!\n\n\n\n\n\n");
+                Console.WriteLine("address " + _browser.Address);
+            }
         }
-}
