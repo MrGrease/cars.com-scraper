@@ -133,15 +133,65 @@ namespace CarScraper
                         break;
                     case Steps.NextPage:
                         Console.WriteLine("SWITCHING FILTER!");
+                        var switchScript = @"document.querySelector('#next_paginate').click();";
+                        _browser.EvaluateScriptAsync(switchScript).ContinueWith(u => {
+                            _currentStep = Steps.ScrapeLastPageForModelS;
+                            Console.WriteLine("PAGE SWITCHED!");
+                        });
                         break;
                     case Steps.ScrapeLastPageForModelS:
                         Console.WriteLine("SCRAPING LAST PAGE FOR MODEL S!");
+                        _browser.EvaluateScriptAsync(_scrapeScript).ContinueWith(u => {
+                            _currentStep = Steps.SelectModelX;
+                            Console.WriteLine("SCRAPE COMPLETE!");
+                            if (u.Result.Success && u.Result.Result != null)
+                            {
+                                Console.WriteLine("Second scrape ready");
+                                var filePath = "Results.txt";
+                                var response = (List<dynamic>)u.Result.Result;
+                                string json = Newtonsoft.Json.JsonConvert.SerializeObject(response);
+                                File.AppendAllText(filePath, json);
+                            }
+                            else
+                            {
+                                Console.WriteLine("SOMETHING WENT WRONG!");
+                                _currentStep = Steps.Fail;
+                            }
+                        });
                         break;
                     case Steps.SelectModelX:
                         Console.WriteLine("SWITCHING FILTER!");
+                        var selectScript = @"document.querySelector('#model_tesla-model_S').checked=false;
+                        document.querySelector('#model_tesla-model_X').checked=true;
+                        document.querySelector('#keyword_search_submit').click();";
+                        _browser.EvaluateScriptAsync(selectScript).ContinueWith(u => {
+                            _currentStep = Steps.ScrapeFirstPageForModelX;
+                            Console.WriteLine("SELECTION COMPLETE!");
+                        });
                         break;
                     case Steps.ScrapeFirstPageForModelX:
                         Console.WriteLine("SCRAPING FIRST PAGE FOR MODEL X!");
+                        _browser.EvaluateScriptAsync(_scrapeScript).ContinueWith(u => {
+                            _currentStep = Steps.Finish;
+                            Console.WriteLine("SCRAPE COMPLETE!");
+                            if (u.Result.Success && u.Result.Result != null)
+                            {
+                                Console.WriteLine("final scrape ready");
+                                var filePath = "Results.txt";
+                                var response = (List<dynamic>)u.Result.Result;
+                                string json = Newtonsoft.Json.JsonConvert.SerializeObject(response);
+                                File.AppendAllText(filePath, json);
+                                string text = File.ReadAllText("Results.txt");
+                                text = text.Replace("][", ",");
+                                File.WriteAllText("Results.txt", text);
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("SOMETHING WENT WRONG!");
+                                _currentStep = Steps.Fail;
+                            }
+                        });
                         break;
                     case Steps.Finish:
                         Console.WriteLine("!!!WORK COMPLETE!!!");
