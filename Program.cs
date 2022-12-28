@@ -51,6 +51,23 @@ namespace CarScraper
                 switch (_currentStep)
                 {
                     case Steps.Login:
+                        var loginScript = @"document.querySelector('#email').value = 'johngerson808@gmail.com';
+                        document.querySelector('#password').value = 'test8008';
+                        document.querySelector('.sds-button').click()";
+                        _browser.EvaluateScriptAsync(loginScript).ContinueWith(u => {
+                            if (u.Result.Success)
+                            {
+                                _currentStep = Steps.EnterFirstSearch;
+                                Console.WriteLine("USER LOGGED IN!");
+                            }
+                            else
+                            {
+                                Console.WriteLine("USER FAILED LOGGING IN!");
+                                _currentStep = Steps.Fail;
+                                _browser.LoadUrl(_url);
+
+                            }
+                        });
                         break;
                     case Steps.EnterFirstSearch:
                         break;
